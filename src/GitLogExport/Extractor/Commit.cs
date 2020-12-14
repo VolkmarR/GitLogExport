@@ -1,5 +1,4 @@
-﻿using GitLogExport.Extractor;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -16,6 +15,6 @@ namespace GitLogExport.Extractor
 
         public string Description { get; set; }
 
-        public List<string> Files { get; set; } = new List<string>();
+        public List<File> Files { get; set; } = new List<File>();
     }
 }

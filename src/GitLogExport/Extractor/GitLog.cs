@@ -1,5 +1,4 @@
-﻿using GitLogExport.Extractor;
-using LibGit2Sharp;
+﻿using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -21,6 +20,25 @@ namespace GitLogExport.Extractor
             return null;
         }
 
+        static File GetFile(PatchEntryChanges patchEntry)
+        { 
+           var result = new File
+               {
+                   Path = patchEntry.Path,
+                   LinesAdded = patchEntry.LinesAdded,
+                   LinesDeleted = patchEntry.LinesDeleted,
+                   Status = patchEntry.Status switch 
+                   {
+                       ChangeKind.Added => FileStatus.Added,
+                       ChangeKind.Deleted  => FileStatus.Deleted,
+                       ChangeKind.Renamed => FileStatus.Renamed,
+                       _ => FileStatus.Modified
+                   }
+           };
+
+            return result;
+        }
+
         public IEnumerable<Commit> GetCommits()
         {
             foreach (var commit in _Repository.Commits)
@@ -40,7 +58,8 @@ namespace GitLogExport.Extractor
 
                 var files = _Repository.Diff.Compare<Patch>(commit.Tree, commit.Parents.FirstOrDefault()?.Tree);
 
-                item.Files = files.Select(q => q.Path).ToList();
+                item.Files = files.Select(GetFile).ToList();
+                
                 yield return item;
             }
         }
