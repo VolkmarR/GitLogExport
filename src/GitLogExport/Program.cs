@@ -1,12 +1,15 @@
-﻿using System;
+﻿using GitLogExport.Extractor;
+using GitLogExport.Writer;
+using System;
+using System.Threading.Tasks;
 
 namespace GitLogExport
 {
     class Program
     {
-        static void Main(string[] args)
+        async static Task Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            await new JsonWriter().Execute(new GitLog(@"d:\Projects\DotNetTest\nodatime").GetCommits(), @"d:\Projects\DotNetTest\nodatime\gitLog.json");
         }
     }
 }

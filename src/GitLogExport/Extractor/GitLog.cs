@@ -21,20 +21,20 @@ namespace GitLogExport.Extractor
         }
 
         static File GetFile(PatchEntryChanges patchEntry)
-        { 
-           var result = new File
-               {
-                   Path = patchEntry.Path,
-                   LinesAdded = patchEntry.LinesAdded,
-                   LinesDeleted = patchEntry.LinesDeleted,
-                   Status = patchEntry.Status switch 
-                   {
-                       ChangeKind.Added => FileStatus.Added,
-                       ChangeKind.Deleted  => FileStatus.Deleted,
-                       ChangeKind.Renamed => FileStatus.Renamed,
-                       _ => FileStatus.Modified
-                   }
-           };
+        {
+            var result = new File
+            {
+                Path = patchEntry.Path,
+                LinesAdded = patchEntry.LinesAdded,
+                LinesDeleted = patchEntry.LinesDeleted,
+                Status = patchEntry.Status switch
+                {
+                    ChangeKind.Added => FileStatus.Added,
+                    ChangeKind.Deleted => FileStatus.Deleted,
+                    ChangeKind.Renamed => FileStatus.Renamed,
+                    _ => FileStatus.Modified
+                }
+            };
 
             return result;
         }
@@ -48,6 +48,7 @@ namespace GitLogExport.Extractor
                     Hash = commit.Sha,
                     Subject = commit.MessageShort,
                     Description = GetDescription(commit),
+                    TimeStamp = DateTimeOffset.MinValue
                 };
 
                 if (commit.Author != null)
@@ -56,10 +57,17 @@ namespace GitLogExport.Extractor
                     item.TimeStamp = commit.Author.When;
                 }
 
+                if (commit.Committer != null)
+                {
+                    item.Committer = new Author { Name = commit.Committer.Name, Email = commit.Committer.Email };
+                    if (item.TimeStamp == DateTimeOffset.MinValue)
+                        item.TimeStamp = commit.Committer.When;
+                }
+
                 var files = _Repository.Diff.Compare<Patch>(commit.Tree, commit.Parents.FirstOrDefault()?.Tree);
 
                 item.Files = files.Select(GetFile).ToList();
-                
+
                 yield return item;
             }
         }

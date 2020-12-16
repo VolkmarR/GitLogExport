@@ -8,6 +8,7 @@ namespace GitLogExport.Extractor
     {
         public string Hash { get; set; }
         public Author Author { get; set; }
+        public Author Committer { get; set; }
 
         public DateTimeOffset TimeStamp { get; set; }
 
